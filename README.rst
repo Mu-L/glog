@@ -1,7 +1,7 @@
 Google Logging Library
 ======================
 
-|Build Status| |Grunt status| |Github actions|
+|Build Status| |Grunt status| |Windows Github actions| |macOS Github actions|
 
 Google Logging (glog) is a C++98 library that implements application-level
 logging. The library provides logging APIs based on C++-style streams and
@@ -155,7 +155,7 @@ If you have glog installed in your system, you can use the CMake command
    cmake_minimum_required (VERSION 3.0.2)
    project (myproj VERSION 1.0)
 
-   find_package (glog 0.5.0 REQUIRED)
+   find_package (glog 0.6.0 REQUIRED)
 
    add_executable (myapp main.cpp)
    target_link_libraries (myapp glog::glog)
@@ -274,7 +274,7 @@ The following flags are most commonly used:
 ``v`` (``int``, default=0)
    Show all ``VLOG(m)`` messages for ``m`` less or equal the value of
    this flag. Overridable by :cmd:`--vmodule`. See `the section about
-   verbose logging <#verbose>`__ for more detail.
+   verbose logging <#verbose-logging>`__ for more detail.
 
 ``vmodule`` (``string``, default="")
    Per-module verbose level. The argument has to contain a
@@ -282,7 +282,7 @@ The following flags are most commonly used:
    glob pattern (e.g., ``gfs*`` for all modules whose name starts with
    "gfs"), matched against the filename base (that is, name ignoring
    .cc/.h./-inl.h). <log level> overrides any value given by :cmd:`--v`.
-   See also `the section about verbose logging <#verbose>`__.
+   See also `the section about verbose logging <#verbose-logging>`__.
 
 There are some other flags defined in logging.cc. Please grep the source
 code for ``DEFINE_`` to see a complete list of all flags.
@@ -345,6 +345,19 @@ output to the first n occurrences:
 
 Outputs log messages for the first 20 times it is executed. Again, the
 ``google::COUNTER`` identifier indicates which repetition is happening.
+
+Other times, it is desired to only log a message periodically based on a time.
+So for example, to log a message every 10ms:
+
+.. code:: cpp
+
+   LOG_EVERY_T(INFO, 0.01) << "Got a cookie";
+
+Or every 2.35s:
+
+.. code:: cpp
+
+   LOG_EVERY_T(INFO, 2.35) << "Got a cookie";
 
 Debug Mode Support
 ~~~~~~~~~~~~~~~~~~
@@ -485,7 +498,7 @@ will:
 
 The wildcarding functionality shown by (c) supports both ’*’ (matches 0
 or more characters) and ’?’ (matches any single character) wildcards.
-Please also check the section about `command line flags <#flags>`__.
+Please also check the section about `command line flags <#setting-flags>`__.
 
 There’s also ``VLOG_IS_ON(n)`` "verbose level" condition macro. This
 macro returns true when the :cmd:`--v` is equal or greater than ``n``. To
@@ -517,7 +530,7 @@ severity level.
          "Present occurence is " << google::COUNTER;
 
 
-Custom log prefix format
+Custom Log Prefix Format
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 glog supports changing the format of the prefix attached to log messages by
@@ -531,28 +544,28 @@ contents will be prepended to the actual message in the final log line.
 
 For example:
 
-   .. code:: cpp
+.. code:: cpp
 
-      /* This function writes a prefix that matches glog's default format.
-       * (The third parameter can be used to receive user-supplied data, and is
-       * NULL by default.)
-       */
-      void CustomPrefix(std::ostream &s, const LogMessageInfo &l, void*) {
-         s << l.severity[0]
-         << setw(4) << 1900 + l.time.year()
-         << setw(2) << 1 + l.time.month()
-         << setw(2) << l.time.day()
-         << ' '
-         << setw(2) << l.time.hour() << ':'
-         << setw(2) << l.time.min()  << ':'
-         << setw(2) << l.time.sec() << "."
-         << setw(6) << l.time.usec()
-         << ' '
-         << setfill(' ') << setw(5)
-         << l.thread_id << setfill('0')
-         << ' '
-         << l.filename << ':' << l.line_number << "]";
-      }
+    /* This function writes a prefix that matches glog's default format.
+     * (The third parameter can be used to receive user-supplied data, and is
+     * NULL by default.)
+     */
+    void CustomPrefix(std::ostream &s, const LogMessageInfo &l, void*) {
+       s << l.severity[0]
+       << setw(4) << 1900 + l.time.year()
+       << setw(2) << 1 + l.time.month()
+       << setw(2) << l.time.day()
+       << ' '
+       << setw(2) << l.time.hour() << ':'
+       << setw(2) << l.time.min()  << ':'
+       << setw(2) << l.time.sec() << "."
+       << setw(6) << l.time.usec()
+       << ' '
+       << setfill(' ') << setw(5)
+       << l.thread_id << setfill('0')
+       << ' '
+       << l.filename << ':' << l.line_number << "]";
+    }
 
 
 To enable the use of ``CustomPrefix()``, simply give glog a pointer to it
@@ -856,5 +869,7 @@ Submitting a Patch
    :target: https://travis-ci.org/google/glog/builds
 .. |Grunt status| image:: https://img.shields.io/appveyor/ci/google-admin/glog/master.svg?label=Appveyor
    :target: https://ci.appveyor.com/project/google-admin/glog/history
-.. |Github actions| image:: https://github.com/google/glog/actions/workflows/windows-builds.yml/badge.svg
+.. |Windows Github actions| image:: https://github.com/google/glog/actions/workflows/windows-builds.yml/badge.svg
+   :target: https://github.com/google/glog/actions
+.. |macOS Github actions| image:: https://github.com/google/glog/actions/workflows/macos-builds.yml/badge.svg
    :target: https://github.com/google/glog/actions
